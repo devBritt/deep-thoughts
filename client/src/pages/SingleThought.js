@@ -1,21 +1,24 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 const SingleThought = props => {
-  return (
-    <div>
-      <div className="card mb-3">
+    const { id: thoughtId } = useParams();
+    
+    return (
+        <div>
+        <div className="card mb-3">
         <p className="card-header">
-          <span style={{ fontWeight: 700 }} className="text-light">
-            Username
-          </span>{' '}
-          thought on createdAt
+        <span style={{ fontWeight: 700 }} className="text-light">
+        Username
+        </span>{' '}
+        thought on createdAt
         </p>
         <div className="card-body">
-          <p>Thought Text</p>
+        <p>Thought Text</p>
         </div>
-      </div>
-    </div>
-  );
-};
-
-export default SingleThought;
+        </div>
+        </div>
+        );
+    };
+    
+    export default SingleThought;
