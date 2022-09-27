@@ -1,21 +1,29 @@
 import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { QUERY_USER, QUERY_ME } from '../utils/queries';
+import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth';
 
 import ThoughtList from '../components/ThoughtList';
 import FriendList from '../components/FriendList';
 
 const Profile = () => {
+    // destructure addFriend mutation function from ADD_FRIEND
+    const [addFriend] = useMutation(ADD_FRIEND);
+
+    // destructure username from url params
     const { username: userParam } = useParams();
 
+    // check if username param exists; if it does, QUERY_USER, otherwise QUERY_ME (logged in user)
     const { loading, data } = useQuery(userParam ? QUERY_USER : QUERY_ME, {
         variables: { username: userParam }
     });
 
+    // extract user data
     const user = data?.me || data?.user || {};
 
+    // NOTE: this can be used to add animated loaders
     if (loading) {
         return <div>Loading...</div>
     }
@@ -34,12 +42,29 @@ const Profile = () => {
         );
     }
 
+    // add friend to friends list on button click
+    const handleClick = async () => {
+        try {
+            await addFriend({
+                variables: { id: user._id }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <div>
             <div className="flex-row mb-3">
                 <h2 className="bg-dark text-secondary p-3 display-inline-block">
                     Viewing {userParam ? `${user.username}'s` : 'your'} profile.
                 </h2>
+
+                {userParam && (
+                    <button className='btn ml-auto' onClick={handleClick}>
+                        Add Friend
+                    </button>
+                )}
             </div>
 
             <div className="flex-row justify-space-between mb-3">
