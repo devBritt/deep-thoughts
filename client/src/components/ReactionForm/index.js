@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { ADD_REACTION } from '../../utils/mutations';
 
 const ReactionForm = ({ thoughtId }) => {
     // ReactionForm state
     const [reactionBody, setBody] = useState('');
     const [characterCount, setCharacterCount] = useState(0);
+
+    // mutation variables
+    const [addReaction, { error }] = useMutation(ADD_REACTION);
 
     const handleChange = event => {
         if (event.target.value.length <= 280) {
@@ -14,14 +19,26 @@ const ReactionForm = ({ thoughtId }) => {
 
     const handleFormSubmit = async event => {
         event.preventDefault();
-        setBody('');
-        setCharacterCount(0);
+
+        try {
+            // add reaction to db
+            await addReaction({
+                variables: { thoughtId, reactionBody }
+            });
+
+            // clear form
+            setBody('');
+            setCharacterCount(0);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
         <div>
-            <p className='m-0'>
+            <p className={`m-0 ${characterCount === 280 || error ? 'text-error' : ''}`}>
                 Character Count: {characterCount}/280
+                {error && <span className='ml-2'>Something went wrong...</span>}
             </p>
             <form className='flex-row justify-center justify-space-between-md align-stretch' onSubmit={handleFormSubmit}>
                 <textarea
